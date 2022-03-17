@@ -1,16 +1,43 @@
-# This is a sample Python script.
+import os
+import sys
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import pygame
+import requests
 
+api_server = "http://static-maps.yandex.ru/1.x/"
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+lon = input()
+lat = input()
+delta = "0.002"
 
+params = {
+    "ll": ",".join([lon, lat]),
+    "spn": ",".join([delta, delta]),
+    "l": "map"
+}
+response = requests.get(api_server, params=params)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+if not response:
+    print("Ошибка выполнения запроса:")
+    print(api_server)
+    print("Http статус:", response.status_code, "(", response.reason, ")")
+    sys.exit(1)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Запишем полученное изображение в файл.
+map_file = "map.png"
+with open(map_file, "wb") as file:
+    file.write(response.content)
+
+# Инициализируем pygame
+pygame.init()
+screen = pygame.display.set_mode((600, 450))
+# Рисуем картинку, загружаемую из только что созданного файла.
+screen.blit(pygame.image.load(map_file), (0, 0))
+# Переключаем экран и ждем закрытия окна.
+pygame.display.flip()
+while pygame.event.wait().type != pygame.QUIT:
+    pass
+pygame.quit()
+
+# Удаляем за собой файл с изображением.
+os.remove(map_file)
