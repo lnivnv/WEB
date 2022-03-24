@@ -9,14 +9,15 @@ lon = "37.530887"
 lat = "55.703118"
 delta = "0.002"
 
-params = {
-    "ll": ",".join([lon, lat]),
-    "spn": ",".join([delta, delta]),
-    "l": "map"
-}
-response = requests.get(api_server, params=params)
-print(response)
 
+def api(lon, lat):
+    params = {
+        "ll": ",".join([lon, lat]),
+        "spn": ",".join([delta, delta]),
+        "l": "map"
+    }
+    return params
+response = requests.get(api_server, params=api(input(), input()))
 if not response:
     print("Ошибка выполнения запроса:")
     print(api_server)
@@ -35,27 +36,68 @@ screen = pygame.display.set_mode((600, 450))
 screen.blit(pygame.image.load(map_file), (0, 0))
 # Переключаем экран и ждем закрытия окна.
 pygame.display.flip()
+#api(input(), input())
 while pygame.event.wait().type != pygame.QUIT:
     for i in pygame.event.get():
-        print('=')
         if i.type == pygame.QUIT:
             sys.exit()
-        elif i.type == pygame.KEYDOWN:
-            print(0000)
-            if i.key == pygame.K_LEFT:
-                os.remove(map_file)
-                map_file = "map.png"
-                with open(map_file, "wb") as file:
-                    file.write(response.content)
-                screen.blit(pygame.image.load(map_file), (-600, 0))
-                print(111)
-            elif i.key == pygame.K_RIGHT:
-                screen.blit(pygame.image.load(map_file), (600, 0))
-                print(2222)
-            elif i.key == pygame.K_DOWN:
-                screen.blit(pygame.image.load(map_file), (0, 450))
-            elif i.key == pygame.K_UP:
-                screen.blit(pygame.image.load(map_file), (0, -450))
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
+            a = float(lon) - float(delta)
+            lat = str(a)
+            print(lat)
+            response = requests.get(api_server, params=api(lon, lat))
+            if not response:
+                print("Ошибка выполнения запроса:")
+                print(api_server)
+                print("Http статус:", response.status_code, "(", response.reason, ")")
+                sys.exit(1)
+            with open(map_file, "wb") as file:
+                file.write(response.content)
+            screen.blit(pygame.image.load(map_file), (0, 0))
+            pygame.display.flip()
+        if keys[pygame.K_d]:
+            a = float(lon) + float(delta)
+            lat = str(a)
+            print(lat)
+            response = requests.get(api_server, params=api(lon, lat))
+            if not response:
+                print("Ошибка выполнения запроса:")
+                print(api_server)
+                print("Http статус:", response.status_code, "(", response.reason, ")")
+                sys.exit(1)
+            with open(map_file, "wb") as file:
+                file.write(response.content)
+            screen.blit(pygame.image.load(map_file), (0, 0))
+            pygame.display.flip()
+        if keys[pygame.K_w]:
+            a = float(lat) + float(delta)
+            lat = str(a)
+            print(lat)
+            response = requests.get(api_server, params=api(lon, lat))
+            if not response:
+                print("Ошибка выполнения запроса:")
+                print(api_server)
+                print("Http статус:", response.status_code, "(", response.reason, ")")
+                sys.exit(1)
+            with open(map_file, "wb") as file:
+                file.write(response.content)
+            screen.blit(pygame.image.load(map_file), (0, 0))
+            pygame.display.flip()
+        if keys[pygame.K_s]:
+            a = float(lat) - float(delta)
+            lat = str(a)
+            print(lat)
+            response = requests.get(api_server, params=api(lon, lat))
+            if not response:
+                print("Ошибка выполнения запроса:")
+                print(api_server)
+                print("Http статус:", response.status_code, "(", response.reason, ")")
+                sys.exit(1)
+            with open(map_file, "wb") as file:
+                file.write(response.content)
+            screen.blit(pygame.image.load(map_file), (0, 0))
+            pygame.display.flip()
     pass
 pygame.quit()
 
