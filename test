@@ -1,0 +1,77 @@
+import sys
+import pygame
+import requests
+
+api_server = "http://static-maps.yandex.ru/1.x/"
+
+lon = "37.530887"
+lat = "55.703118"
+delta = "0.02"
+
+
+def api(delta):
+    params = {
+        "ll": ",".join([lon, lat]),
+        "spn": ",".join([delta, delta]),
+        "l": "map"
+    }
+    return params
+
+
+response = requests.get(api_server, params=api(delta))
+if not response:
+    print("Ошибка выполнения запроса:")
+    print(api_server)
+    print("Http статус:", response.status_code, "(", response.reason, ")")
+    sys.exit(1)
+
+# Запишем полученное изображение в файл.
+map_file = "map.png"
+with open(map_file, "wb") as file:
+    file.write(response.content)
+
+# Инициализируем pygame
+pygame.init()
+screen = pygame.display.set_mode((600, 450))
+# Рисуем картинку, загружаемую из только что созданного файла.
+screen.blit(pygame.image.load(map_file), (0, 0))
+# Переключаем экран и ждем закрытия окна.
+pygame.display.flip()
+while 1:
+    for i in pygame.event.get():
+        if i.type == pygame.QUIT:
+            sys.exit()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_PAGEUP]:
+            a = float(delta) + 85
+            delta = str(a)
+            if a < 90:
+                response = requests.get(api_server, params=api(delta))
+                if not response:
+                    print("Ошибка выполнения запроса:")
+                    print(api_server)
+                    print("Http статус:", response.status_code, "(", response.reason, ")")
+                    sys.exit(1)
+                with open(map_file, "wb") as file:
+                    file.write(response.content)
+                screen.blit(pygame.image.load(map_file), (0, 0))
+                pygame.display.flip()
+        if keys[pygame.K_PAGEDOWN]:
+            a = float(delta) - 0.01
+            delta = str(a)
+            if a > 0:
+                response = requests.get(api_server, params=api(delta))
+                if not response:
+                    print("Ошибка выполнения запроса:")
+                    print(api_server)
+                    print("Http статус:", response.status_code, "(", response.reason, ")")
+                    sys.exit(1)
+                with open(map_file, "wb") as file:
+                    file.write(response.content)
+                screen.blit(pygame.image.load(map_file), (0, 0))
+                pygame.display.flip()
+    pass
+pygame.quit()
+
+# Удаляем за собой файл с изображением.
+os.remove(map_file)
