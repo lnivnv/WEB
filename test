@@ -43,9 +43,10 @@ while 1:
             sys.exit()
         keys = pygame.key.get_pressed()
         if keys[pygame.K_PAGEUP]:
-            a = float(delta) + 85
+            a = float(delta) + 0.02
+            print(a)
             delta = str(a)
-            if a < 90:
+            if a < 90 and a > 0:
                 response = requests.get(api_server, params=api(delta))
                 if not response:
                     print("Ошибка выполнения запроса:")
@@ -58,8 +59,9 @@ while 1:
                 pygame.display.flip()
         if keys[pygame.K_PAGEDOWN]:
             a = float(delta) - 0.01
+            print(a)
             delta = str(a)
-            if a > 0:
+            if a > 0 and a < 90:
                 response = requests.get(api_server, params=api(delta))
                 if not response:
                     print("Ошибка выполнения запроса:")
