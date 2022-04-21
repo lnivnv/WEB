@@ -1,19 +1,16 @@
 import os
 import sys
-
 import pygame as pg
 import requests
 
 api_server = "http://static-maps.yandex.ru/1.x/"
 search_api_server = "https://search-maps.yandex.ru/v1/"
 api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
-lon = "37.530887"
-lat = "55.703118"
 address_ll = "37.588392,55.734036"
 delta = "0.002"
 
 params = {
-    "ll": ",".join([lon, lat]),
+    "ll": address_ll,
     "spn": ",".join([delta, delta]),
     "l": "map"
 }
