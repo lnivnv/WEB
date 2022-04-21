@@ -46,20 +46,17 @@ while pygame.event.wait().type != pygame.QUIT:
         if keys[pygame.K_a]:
             a = float(lon) - float(delta)
             lon = str(a)
-            response = requests.get(api_server, params=api(lon, lat))
         if keys[pygame.K_d]:
             a = float(lon) + float(delta)
             lon = str(a)
-            response = requests.get(api_server, params=api(lon, lat))
         if keys[pygame.K_w]:
             a = float(lat) + float(delta)
             lat = str(a)
-            response = requests.get(api_server, params=api(lon, lat))
         if keys[pygame.K_s]:
             a = float(lat) - float(delta)
             lat = str(a)
-            response = requests.get(api_server, params=api(lon, lat))
         if float(lat) < 85 and float(lat) > -85 and float(lon) < 180 and float(lon) > -180:
+            response = requests.get(api_server, params=api(lon, lat))
             if not response:
                 print("Ошибка выполнения запроса:")
                 print(api_server)
