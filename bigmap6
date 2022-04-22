@@ -1,0 +1,101 @@
+import os
+import sys
+import pygame
+import requests
+
+api_server = "http://static-maps.yandex.ru/1.x/"
+
+lon = "37.530887"
+lat = "55.703118"
+delta = "0.02"
+sdvig = 0.01
+mapview = "map"
+
+
+def api(lon, lat, delta, mapview):
+    params = {
+        "ll": ",".join([lon, lat]),
+        "spn": ",".join([delta, delta]),
+        "l": mapview
+    }
+    return params
+
+
+response = requests.get(api_server, params=api(lon, lat, delta, mapview))
+if not response:
+    print("Ошибка выполнения запроса:")
+    print(api_server)
+    print("Http статус:", response.status_code, "(", response.reason, ")")
+    sys.exit(1)
+
+# Запишем полученное изображение в файл.
+map_file = "map.png"
+with open(map_file, "wb") as file:
+    file.write(response.content)
+
+# Инициализируем pygame
+pygame.init()
+screen = pygame.display.set_mode((600, 600))
+# Рисуем картинку, загружаемую из только что созданного файла.
+screen.blit(pygame.image.load(map_file), (0, 0))
+pygame.draw.rect(screen, (255, 0, 0), (15, 490, 150, 70), 0)
+pygame.draw.rect(screen, (255, 0, 0), (210, 490, 150, 70), 0)
+pygame.draw.rect(screen, (255, 0, 0), (410, 490, 150, 70), 0)
+font = pygame.font.Font(None, 50)
+text = font.render("Sat", True, ("white"))
+text2 = font.render("Map", True, ("white"))
+text3 = font.render("Skl", True, ("white"))
+text_x = 60
+text_y = 510
+screen.blit(text, (text_x, text_y))
+screen.blit(text2, (text_x + 200, text_y))
+screen.blit(text3, (text_x + 400, text_y))
+# Переключаем экран и ждем закрытия окна.
+pygame.display.flip()
+while 1:
+    for i in pygame.event.get():
+        if i.type == pygame.QUIT:
+            sys.exit()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_PAGEUP]:
+            a = float(delta) + sdvig
+            delta = str(a)
+        if keys[pygame.K_PAGEDOWN]:
+            a = float(delta) - sdvig
+            delta = str(a)
+        if keys[pygame.K_a]:
+            a = float(lon) - sdvig
+            lon = str(a)
+        if keys[pygame.K_d]:
+            a = float(lon) + sdvig
+            lon = str(a)
+        if keys[pygame.K_w]:
+            a = float(lat) + sdvig
+            lat = str(a)
+        if keys[pygame.K_s]:
+            a = float(lat) - sdvig
+            lat = str(a)
+        if i.type == pygame.MOUSEBUTTONDOWN:
+            if i.pos[0] >= 15 and i.pos[0] <= 165 and i.pos[1] >= 490 and i.pos[1] <= 560:
+                mapview = "sat"
+            if i.pos[0] >= 210 and i.pos[0] <= 360 and i.pos[1] >= 490 and i.pos[1] <= 560:
+                mapview = "map"
+            if i.pos[0] >= 410 and i.pos[0] <= 560 and i.pos[1] >= 490 and i.pos[1] <= 560:
+                mapview = "skl"
+        if (float(delta) > 0 and float(delta) < 90) and \
+                (float(lat) < 85 and float(lat) > -85 and float(lon) < 180 and float(lon) > -180):
+            response = requests.get(api_server, params=api(lon, lat, delta, mapview))
+            if not response:
+                print("Ошибка выполнения запроса:")
+                print(api_server)
+                print("Http статус:", response.status_code, "(", response.reason, ")")
+                sys.exit(1)
+            with open(map_file, "wb") as file:
+                file.write(response.content)
+            screen.blit(pygame.image.load(map_file), (0, 0))
+            pygame.display.flip()
+    pass
+pygame.quit()
+
+# Удаляем за собой файл с изображением.
+os.remove(map_file)
