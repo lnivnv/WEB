@@ -11,7 +11,6 @@ search_params = {
     "apikey": api_key,
     "text": 'яндекс',
     "lang": "ru_RU",
-    "ll": address_ll,
     "type": "biz"
 }
 
@@ -39,11 +38,10 @@ delta = "0.005"
 # Собираем параметры для запроса к StaticMapsAPI:
 map_params = {
     # позиционируем карту центром на наш исходный адрес
-    "ll": address_ll,
     "spn": ",".join([delta, delta]),
     "l": "map",
     # добавим точку, чтобы указать найденную аптеку
-    "pt": "{0},pm2dgl".format(org_point)
+    "pt": "{0},pm2blywl".format(org_point)
 }
 
 map_api_server = "http://static-maps.yandex.ru/1.x/"
@@ -96,7 +94,6 @@ def main():
                             "apikey": api_key,
                             "text": text,
                             "lang": "ru_RU",
-                            "ll": address_ll,
                             "type": "biz"
                         }
 
@@ -123,7 +120,6 @@ def main():
                         # Собираем параметры для запроса к StaticMapsAPI:
                         map_params = {
                             # позиционируем карту центром на наш исходный адрес
-                            "ll": address_ll,
                             "spn": ",".join([delta, delta]),
                             "l": "map",
                             # добавим точку, чтобы указать найденную аптеку
