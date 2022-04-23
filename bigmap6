@@ -1,47 +1,225 @@
 import os
 import sys
-import pygame
+import pygame as pg
 import requests
-
-api_server = "http://static-maps.yandex.ru/1.x/"
 
 lon = "37.530887"
 lat = "55.703118"
-delta = "0.02"
-sdvig = 0.01
-mapview = "map"
+delta = "0.005"
+sdvig = 0.05
+mapview = 'map'
+org_point = ''
 
 
 def api(lon, lat, delta, mapview):
     params = {
         "ll": ",".join([lon, lat]),
         "spn": ",".join([delta, delta]),
-        "l": mapview
+        "l": mapview,
     }
     return params
 
 
-response = requests.get(api_server, params=api(lon, lat, delta, mapview))
-if not response:
-    print("Ошибка выполнения запроса:")
-    print(api_server)
-    print("Http статус:", response.status_code, "(", response.reason, ")")
-    sys.exit(1)
+def photo(text):
+    search_api_server = "https://search-maps.yandex.ru/v1/"
+    api_server = "http://static-maps.yandex.ru/1.x/"
+    api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
+    if text != '':
+        print(1)
+        search_params = {
+            "apikey": api_key,
+            "text": text,
+            "lang": "ru_RU",
+            "type": "biz"
+        }
+        response = requests.get(search_api_server, params=search_params)
+        json_response = response.json()
+        organization = json_response["features"][0]
+        org_name = organization["properties"]["CompanyMetaData"]["name"]
+        org_address = organization["properties"]["CompanyMetaData"]["address"]
+        point = organization["geometry"]["coordinates"]
+        global org_point
+        org_point = "{0},{1}".format(point[0], point[1])
+        global lon
+        lon = str(point[0])
+        global lat
+        lat = str(point[1])
+        global delta
+        global mapview
+        map_params = {
+            "ll": ",".join([lon, lat]),
+            "spn": ",".join([delta, delta]),
+            "l": mapview,
+            "pt": "{0},pm2dgl".format(org_point)
+        }
+        map_api_server = "http://static-maps.yandex.ru/1.x/"
+        # running = True
+        # while running:
+        #     for i in pg.event.get():
+        #         if i.type == pg.QUIT:
+        #             running = False
+        #         if i.type == pg.KEYDOWN:
+        #             if i.key == pg.K_PAGEUP:
+        #                 a = float(delta) + sdvig
+        #                 delta = str(a)
+        #             if i.key == pg.K_PAGEDOWN:
+        #                 a = float(delta) - sdvig
+        #                 delta = str(a)
+        #             if i.key == pg.K_LEFT:
+        #                 a = float(lon) - sdvig
+        #                 lon = str(a)
+        #             if i.key == pg.K_RIGHT:
+        #                 a = float(lon) + sdvig
+        #                 lon = str(a)
+        #             if i.key == pg.K_UP:
+        #                 a = float(lat) + sdvig
+        #                 lat = str(a)
+        #             if i.key == pg.K_DOWN:
+        #                 a = float(lat) - sdvig
+        #                 lat = str(a)
+        #         if i.type == pg.MOUSEBUTTONDOWN:
+        #             if i.pos[0] >= 15 and i.pos[0] <= 165 and i.pos[1] >= 490 and i.pos[1] <= 560:
+        #                 mapview = "sat"
+        #             if i.pos[0] >= 210 and i.pos[0] <= 360 and i.pos[1] >= 490 and i.pos[1] <= 560:
+        #                 mapview = "map"
+        #             if i.pos[0] >= 410 and i.pos[0] <= 560 and i.pos[1] >= 490 and i.pos[1] <= 560:
+        #                 mapview = "skl"
+        #         if (float(delta) > 0 and float(delta) < 90) and \
+        #                 (float(lat) < 85 and float(lat) > -85 and float(lon) < 180 and float(lon) > -180):
+        #             if org_point != '':
+        #                 map_params = {
+        #                     "ll": ",".join([lon, lat]),
+        #                     "spn": ",".join([delta, delta]),
+        #                     "l": "map",
+        #                     "pt": "{0},pm2dgl".format(org_point)
+        #                 }
+        #                 map_api_server = "http://static-maps.yandex.ru/1.x/"
+        #                 response = requests.get(map_api_server, params=map_params)
+        #             else:
+        #                 response = requests.get(api_server, params=api(lon, lat, delta, mapview))
+        response = requests.get(map_api_server, params=map_params)
+    else:
+        print(-1)
+        if org_point != '':
+            map_params = {
+                "ll": ",".join([lon, lat]),
+                "spn": ",".join([delta, delta]),
+                "l": "map",
+                "pt": "{0},pm2dgl".format(org_point)
+            }
+            map_api_server = "http://static-maps.yandex.ru/1.x/"
+            response = requests.get(map_api_server, params=map_params)
+            # running = True
+            # while running:
+            #     for i in pg.event.get():
+            #         if i.type == pg.QUIT:
+            #             running = False
+            #         if i.type == pg.KEYDOWN:
+            #             if i.key == pg.K_PAGEUP:
+            #                 a = float(delta) + sdvig
+            #                 delta = str(a)
+            #             if i.key == pg.K_PAGEDOWN:
+            #                 a = float(delta) - sdvig
+            #                 delta = str(a)
+            #             if i.key == pg.K_LEFT:
+            #                 a = float(lon) - sdvig
+            #                 lon = str(a)
+            #             if i.key == pg.K_RIGHT:
+            #                 a = float(lon) + sdvig
+            #                 lon = str(a)
+            #             if i.key == pg.K_UP:
+            #                 a = float(lat) + sdvig
+            #                 lat = str(a)
+            #             if i.key == pg.K_DOWN:
+            #                 a = float(lat) - sdvig
+            #                 lat = str(a)
+            #         if i.type == pg.MOUSEBUTTONDOWN:
+            #             if i.pos[0] >= 15 and i.pos[0] <= 165 and i.pos[1] >= 490 and i.pos[1] <= 560:
+            #                 mapview = "sat"
+            #             if i.pos[0] >= 210 and i.pos[0] <= 360 and i.pos[1] >= 490 and i.pos[1] <= 560:
+            #                 mapview = "map"
+            #             if i.pos[0] >= 410 and i.pos[0] <= 560 and i.pos[1] >= 490 and i.pos[1] <= 560:
+            #                 mapview = "skl"
+            #         if (float(delta) > 0 and float(delta) < 90) and \
+            #                 (float(lat) < 85 and float(lat) > -85 and float(lon) < 180 and float(lon) > -180):
+            #             if org_point != '':
+            #                 map_params = {
+            #                     "ll": ",".join([lon, lat]),
+            #                     "spn": ",".join([delta, delta]),
+            #                     "l": "map",
+            #                     "pt": "{0},pm2dgl".format(org_point)
+            #                 }
+            #                 map_api_server = "http://static-maps.yandex.ru/1.x/"
+            #                 response = requests.get(map_api_server, params=map_params)
+            #             else:
+            #                 response = requests.get(api_server, params=api(lon, lat, delta, mapview))
+        else:
+            print(2)
+            response = requests.get(api_server, params=api(lon, lat, delta, mapview))
+            # running = True
+            # while running:
+            #     for i in pg.event.get():
+            #         if i.type == pg.QUIT:
+            #             running = False
+            #         if i.type == pg.KEYDOWN:
+            #             if i.key == pg.K_PAGEUP:
+            #                 a = float(delta) + sdvig
+            #                 delta = str(a)
+            #             if i.key == pg.K_PAGEDOWN:
+            #                 a = float(delta) - sdvig
+            #                 delta = str(a)
+            #             if i.key == pg.K_LEFT:
+            #                 a = float(lon) - sdvig
+            #                 lon = str(a)
+            #             if i.key == pg.K_RIGHT:
+            #                 a = float(lon) + sdvig
+            #                 lon = str(a)
+            #             if i.key == pg.K_UP:
+            #                 a = float(lat) + sdvig
+            #                 lat = str(a)
+            #             if i.key == pg.K_DOWN:
+            #                 a = float(lat) - sdvig
+            #                 lat = str(a)
+            #         if i.type == pg.MOUSEBUTTONDOWN:
+            #             if i.pos[0] >= 15 and i.pos[0] <= 165 and i.pos[1] >= 490 and i.pos[1] <= 560:
+            #                 mapview = "sat"
+            #             if i.pos[0] >= 210 and i.pos[0] <= 360 and i.pos[1] >= 490 and i.pos[1] <= 560:
+            #                 mapview = "map"
+            #             if i.pos[0] >= 410 and i.pos[0] <= 560 and i.pos[1] >= 490 and i.pos[1] <= 560:
+            #                 mapview = "skl"
+            #         if (float(delta) > 0 and float(delta) < 90) and \
+            #                 (float(lat) < 85 and float(lat) > -85 and float(lon) < 180 and float(lon) > -180):
+            #             if org_point != '':
+            #                 map_params = {
+            #                     "ll": ",".join([lon, lat]),
+            #                     "spn": ",".join([delta, delta]),
+            #                     "l": "map",
+            #                     "pt": "{0},pm2dgl".format(org_point)
+            #                 }
+            #                 map_api_server = "http://static-maps.yandex.ru/1.x/"
+            #                 response = requests.get(map_api_server, params=map_params)
+            #             else:
+            #                 response = requests.get(api_server, params=api(lon, lat, delta, mapview))
+    if not response:
+        print("Ошибка выполнения запроса:")
+        print(api_server)
+        print("Http статус:", response.status_code, "(", response.reason, ")")
+        sys.exit(1)
+    return response
 
-# Запишем полученное изображение в файл.
+
 map_file = "map.png"
+r = photo('')
 with open(map_file, "wb") as file:
-    file.write(response.content)
-
-# Инициализируем pygame
-pygame.init()
-screen = pygame.display.set_mode((600, 600))
-# Рисуем картинку, загружаемую из только что созданного файла.
-screen.blit(pygame.image.load(map_file), (0, 0))
-pygame.draw.rect(screen, (255, 0, 0), (15, 490, 150, 70), 0)
-pygame.draw.rect(screen, (255, 0, 0), (210, 490, 150, 70), 0)
-pygame.draw.rect(screen, (255, 0, 0), (410, 490, 150, 70), 0)
-font = pygame.font.Font(None, 50)
+    file.write(r.content)
+pg.init()
+screen = pg.display.set_mode((600, 600))
+screen.blit(pg.image.load("map.png"), (0, 0))
+screen.blit(pg.image.load(map_file), (0, 0))
+pg.draw.rect(screen, (255, 0, 0), (15, 490, 150, 70), 0)
+pg.draw.rect(screen, (255, 0, 0), (210, 490, 150, 70), 0)
+pg.draw.rect(screen, (255, 0, 0), (410, 490, 150, 70), 0)
+font = pg.font.Font(None, 50)
 text = font.render("Sat", True, ("white"))
 text2 = font.render("Map", True, ("white"))
 text3 = font.render("Skl", True, ("white"))
@@ -50,52 +228,57 @@ text_y = 510
 screen.blit(text, (text_x, text_y))
 screen.blit(text2, (text_x + 200, text_y))
 screen.blit(text3, (text_x + 400, text_y))
-# Переключаем экран и ждем закрытия окна.
-pygame.display.flip()
-while 1:
-    for i in pygame.event.get():
-        if i.type == pygame.QUIT:
-            sys.exit()
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_PAGEUP]:
-            a = float(delta) + sdvig
-            delta = str(a)
-        if keys[pygame.K_PAGEDOWN]:
-            a = float(delta) - sdvig
-            delta = str(a)
-        if keys[pygame.K_a]:
-            a = float(lon) - sdvig
-            lon = str(a)
-        if keys[pygame.K_d]:
-            a = float(lon) + sdvig
-            lon = str(a)
-        if keys[pygame.K_w]:
-            a = float(lat) + sdvig
-            lat = str(a)
-        if keys[pygame.K_s]:
-            a = float(lat) - sdvig
-            lat = str(a)
-        if i.type == pygame.MOUSEBUTTONDOWN:
-            if i.pos[0] >= 15 and i.pos[0] <= 165 and i.pos[1] >= 490 and i.pos[1] <= 560:
-                mapview = "sat"
-            if i.pos[0] >= 210 and i.pos[0] <= 360 and i.pos[1] >= 490 and i.pos[1] <= 560:
-                mapview = "map"
-            if i.pos[0] >= 410 and i.pos[0] <= 560 and i.pos[1] >= 490 and i.pos[1] <= 560:
-                mapview = "skl"
-        if (float(delta) > 0 and float(delta) < 90) and \
-                (float(lat) < 85 and float(lat) > -85 and float(lon) < 180 and float(lon) > -180):
-            response = requests.get(api_server, params=api(lon, lat, delta, mapview))
-            if not response:
-                print("Ошибка выполнения запроса:")
-                print(api_server)
-                print("Http статус:", response.status_code, "(", response.reason, ")")
-                sys.exit(1)
-            with open(map_file, "wb") as file:
-                file.write(response.content)
-            screen.blit(pygame.image.load(map_file), (0, 0))
-            pygame.display.flip()
-    pass
-pygame.quit()
+pg.display.flip()
 
-# Удаляем за собой файл с изображением.
+
+def main():
+    font = pg.font.Font(None, 32)
+    clock = pg.time.Clock()
+    input_box = pg.Rect(100, 100, 140, 32)
+    color_inactive = pg.Color('lightskyblue3')
+    color_active = pg.Color('dodgerblue2')
+    color = color_inactive
+    active = False
+    text = ''
+    done = False
+    while not done:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                done = True
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    active = not active
+                else:
+                    active = False
+                color = color_active if active else color_inactive
+            if event.type == pg.KEYDOWN:
+                if active:
+                    if event.key == pg.K_RETURN:
+                        map_file = "map.png"
+                        r = photo(text)
+                        with open(map_file, "wb") as file:
+                            file.write(r.content)
+                        screen.blit(pg.image.load("map.png"), (0, 0))
+                        text = ''
+                    elif event.key == pg.K_BACKSPACE:
+                        text = text[:-1]
+                        map_file = "map.png"
+                        r = photo('')
+                        with open(map_file, "wb") as file:
+                            file.write(r.content)
+                        screen.blit(pg.image.load("map.png"), (0, 0))
+                    else:
+                        text += event.unicode
+        txt_surface = font.render(text, True, color)
+        width = max(200, txt_surface.get_width()+10)
+        input_box.w = width
+        screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+        pg.draw.rect(screen, color, input_box, 2)
+        pg.display.flip()
+        clock.tick(30)
+
+
+while pg.event.wait().type != pg.QUIT:
+    main()
+    pg.quit()
 os.remove(map_file)
