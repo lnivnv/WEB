@@ -4,6 +4,7 @@ import pygame as pg
 import requests
 
 api_server = "http://static-maps.yandex.ru/1.x/"
+map_api_server = "http://static-maps.yandex.ru/1.x/"
 lon = "37.530887"
 lat = "55.703118"
 delta = "0.005"
@@ -23,7 +24,6 @@ def api(lon, lat, delta, mapview):
 
 def photo(text):
     search_api_server = "https://search-maps.yandex.ru/v1/"
-    api_server = "http://static-maps.yandex.ru/1.x/"
     api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
     if text != '':
         search_params = {
@@ -52,7 +52,6 @@ def photo(text):
             "l": mapview,
             "pt": "{0},pm2dgl".format(org_point)
         }
-        map_api_server = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=map_params)
     else:
         if org_point != '':
@@ -62,7 +61,6 @@ def photo(text):
                 "l": "map",
                 "pt": "{0},pm2dgl".format(org_point)
             }
-            map_api_server = "http://static-maps.yandex.ru/1.x/"
             response = requests.get(map_api_server, params=map_params)
         else:
             response = requests.get(api_server, params=api(lon, lat, delta, mapview))
@@ -171,7 +169,6 @@ def main():
                         "l": mapview,
                         "pt": "{0},pm2dgl".format(org_point)
                     }
-                    map_api_server = "http://static-maps.yandex.ru/1.x/"
                     response = requests.get(map_api_server, params=map_params)
                 else:
                     response = requests.get(api_server, params=api(lon, lat, delta, mapview))
@@ -196,4 +193,3 @@ while pg.event.wait().type != pg.QUIT:
     main()
     pg.quit()
 os.remove(map_file)
-
